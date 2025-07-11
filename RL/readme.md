@@ -72,3 +72,108 @@ This returns the final state, reward, done and then an empty dictionary for any 
 Then we train, evaluate and test our model in a very similar way as before but using 50000 steps here.
 
 **That's it!** We then refine our model by iteration!
+
+### **Inverted Pendulum using DQN**
+
+This notebook implements a **Deep Q-Network (DQN)** agent to balance the classic **CartPole-v1** environment from OpenAI Gym, and uses **Pygame** for custom visualization.
+
+---
+
+### 🔹 Core Components
+
+**1️⃣ Environment & Visualization Setup**
+
+- `pygame.init()` initializes Pygame for custom rendering.
+- The screen size is set to `800×600`. The cart and pendulum dimensions are defined for drawing.
+- A Gym environment `CartPole-v1` is created with `render_mode="rgb_array"` to integrate with Pygame visuals.
+
+---
+
+**2️⃣ Hyperparameters**
+
+Key hyperparameters are defined for DQN training:
+- `gamma`: Discount factor for future rewards.
+- `lr`: Learning rate for the neural network optimizer.
+- `epsilon`: Initial exploration rate for the epsilon-greedy policy.
+- `epsilon_decay` & `epsilon_min`: Control how exploration reduces over episodes.
+- `batch_size`: Mini-batch size for experience replay.
+- `target_update`: Frequency (in episodes) for updating the target network.
+
+---
+
+**3️⃣ Replay Buffer**
+
+- A `deque` with max size 10,000 stores `(state, action, reward, next_state, done)` tuples for training with experience replay.
+
+---
+
+**4️⃣ DQN Model**
+
+- The `DQN` class defines a simple 3-layer feedforward neural network:
+  - Input: Current state (4 values for CartPole).
+  - Hidden layers: Two dense layers with 256 neurons each and ReLU activations.
+  - Output: Q-values for each possible action (`env.action_space.n`).
+
+---
+
+**5️⃣ Networks & Optimizer**
+
+- `policy_net`: Main Q-network.
+- `target_net`: Copy of the Q-network, updated periodically for stable targets.
+- `optimizer`: Adam optimizer to train `policy_net`.
+
+---
+
+**6️⃣ Action Selection**
+
+- `select_action`: Chooses an action using epsilon-greedy:
+  - With probability `epsilon`: pick a random action.
+  - Otherwise: pick the action with the highest predicted Q-value.
+
+---
+
+**7️⃣ Training Step**
+
+- `optimize_model`: Samples a random batch from the replay buffer.
+  - Computes the current Q-values and the expected Q-values from the Bellman equation.
+  - Calculates mean squared error loss.
+  - Backpropagates the loss and updates the `policy_net`.
+
+---
+
+### 🔹 Main Loop
+
+**Training runs for 200 episodes:**
+
+- Each episode:
+  1. Environment is reset.
+  2. For up to 999 time steps:
+     - Render the cart and pendulum with Pygame:
+       - Cart position and pendulum angle are mapped to screen coordinates.
+       - Cart is drawn as a rectangle, pendulum as a line and circle.
+     - Select an action using the DQN policy.
+     - Take the action in Gym, receive next state and reward.
+     - Store the transition in the replay buffer.
+     - Optimize the DQN using `optimize_model`.
+     - Check for episode termination.
+  3. Decay `epsilon` for less exploration over time.
+  4. Every few episodes, update the target network to match the policy network.
+
+---
+
+### 🔹 Exit
+
+- On quitting, the Gym environment and Pygame window are properly closed.
+
+---
+
+### ⚙️ Key Points
+
+- Combines **Gym** (for physics and reward logic) with **Pygame** (for custom visualization).
+- Implements **Deep Q-Learning** with:
+  - Experience replay.
+  - Target network for stability.
+  - Epsilon-greedy exploration.
+- Visually shows the cart and pendulum in real time.
+
+---
